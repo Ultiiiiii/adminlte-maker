@@ -126,6 +126,16 @@ class MakeAdminLTECrud extends AbstractMaker
             ++$iter;
         } while (class_exists($formClassDetails->getFullName()));
 
+        $iter = 0;
+        do {
+            $tableClassDetails = $generator->createClassNameDetails(
+                $entityClassDetails->getRelativeNameWithoutSuffix().($iter ?: '').'TableType',
+                'Table\\',
+                'Type'
+            );
+            ++$iter;
+        } while (class_exists($tableClassDetails->getFullName()));
+
         $arr = $inflector->pluralize($entityClassDetails->getShortName());
         $entityVarPlural = lcfirst(reset($arr));
         $entityVarSingular = lcfirst($entityClassDetails->getShortName());
@@ -144,6 +154,8 @@ class MakeAdminLTECrud extends AbstractMaker
                 'entity_class_name' => $entityClassDetails->getShortName(),
                 'form_full_class_name' => $formClassDetails->getFullName(),
                 'form_class_name' => $formClassDetails->getShortName(),
+                'table_full_class_name' => $tableClassDetails->getFullName(),
+                'table_class_name' => $tableClassDetails->getShortName(),
                 'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
                 'route_name' => $routeName,
                 'templates_path' => $templatesPath,
@@ -211,6 +223,21 @@ class MakeAdminLTECrud extends AbstractMaker
                 $variables
             );
         }
+
+        $generator->generateFile(
+            'src\Table\\'.$tableClassDetails->getShortName().'.php',
+            $this->skeletonDir . 'crud/dataTable/dataTable.tpl.php',
+            [
+                'namespace' => substr($tableClassDetails->getFullName(),0,-strlen($tableClassDetails->getRelativeName())-1),
+                'entity_full_class_name' => $entityClassDetails->getFullName(),
+                'entity_class_name' => $entityClassDetails->getShortName(),
+                'class_name' => $tableClassDetails->getRelativeName(),
+                'parent_class_name' => 'AbstractController',
+                'interface_class_name' =>  'DataTableTypeInterface',
+                'entity_fields' => $entityDoctrineDetails->getDisplayFields(),
+                'route_name' => $routeName,
+            ]
+        );
 
         $generator->writeChanges();
 
