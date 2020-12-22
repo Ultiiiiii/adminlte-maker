@@ -38,6 +38,7 @@ php bin/console list make:adminlte
 
 make:adminlte:controller  Creates a new controller class
 make:adminlte:crud        Creates AdminLTE CRUD for Doctrine entity class
+make:adminlte:crudmodal   Creates AdminLTE CRUD for Doctrine entity class in modal mode
 ```
 
 ## Configuration
