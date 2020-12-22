@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Validator\Validation;
 
-class MakeAdminLTECrud extends AbstractMaker
+class MakeAdminLTECrudModal extends AbstractMaker
 {
     private $doctrineHelper;
 
@@ -47,10 +47,10 @@ class MakeAdminLTECrud extends AbstractMaker
         $this->cdnCss = $configuration['datatable']['cdn_css'];
         $this->cdnJs = $configuration['datatable']['cdn_js'];
     }
-
+    
     public static function getCommandName(): string
     {
-        return 'make:adminlte:crud';
+        return 'make:adminlte:crudmodal';
     }
 
     /**
@@ -59,7 +59,7 @@ class MakeAdminLTECrud extends AbstractMaker
     public function configureCommand(Command $command, InputConfiguration $inputConfig)
     {
         $command
-            ->setDescription('Creates AdminLTE CRUD for Doctrine entity class')
+            ->setDescription('Creates AdminLTE CRUD (Popup mode) for Doctrine entity class')
             ->addArgument('entity-class', InputArgument::OPTIONAL, sprintf('The class name of the entity to create CRUD (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
         ;
 
@@ -128,6 +128,7 @@ class MakeAdminLTECrud extends AbstractMaker
 
         $arr = $inflector->pluralize($entityClassDetails->getShortName());
         $entityVarPlural = lcfirst(reset($arr));
+
         $entityVarSingular = lcfirst($entityClassDetails->getShortName());
 
         $entityTwigVarPlural = Str::asTwigVariable($entityVarPlural);
@@ -135,25 +136,25 @@ class MakeAdminLTECrud extends AbstractMaker
 
         $routeName = Str::asRouteName($controllerClassDetails->getRelativeNameWithoutSuffix());
         $templatesPath = Str::asFilePath($controllerClassDetails->getRelativeNameWithoutSuffix());
-
+        
         $generator->generateController(
             $controllerClassDetails->getFullName(),
-            $this->skeletonDir . 'crud/controller/Controller.tpl.php',
+            $this->skeletonDir . 'crudmodal/controller/Controller.tpl.php',
             array_merge([
-                'entity_full_class_name' => $entityClassDetails->getFullName(),
-                'entity_class_name' => $entityClassDetails->getShortName(),
-                'form_full_class_name' => $formClassDetails->getFullName(),
-                'form_class_name' => $formClassDetails->getShortName(),
-                'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
-                'route_name' => $routeName,
-                'templates_path' => $templatesPath,
-                'entity_var_plural' => $entityVarPlural,
-                'entity_twig_var_plural' => $entityTwigVarPlural,
-                'entity_var_singular' => $entityVarSingular,
-                'entity_twig_var_singular' => $entityTwigVarSingular,
-                'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
-                'entity_fields' => $entityDoctrineDetails->getDisplayFields(),
-            ],
+                    'entity_full_class_name' => $entityClassDetails->getFullName(),
+                    'entity_class_name' => $entityClassDetails->getShortName(),
+                    'form_full_class_name' => $formClassDetails->getFullName(),
+                    'form_class_name' => $formClassDetails->getShortName(),
+                    'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
+                    'route_name' => $routeName,
+                    'templates_path' => $templatesPath,
+                    'entity_var_plural' => $entityVarPlural,
+                    'entity_twig_var_plural' => $entityTwigVarPlural,
+                    'entity_var_singular' => $entityVarSingular,
+                    'entity_twig_var_singular' => $entityTwigVarSingular,
+                    'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
+                    'entity_fields' => $entityDoctrineDetails->getDisplayFields(),
+                ],
                 $repositoryVars
             )
         );
@@ -165,19 +166,17 @@ class MakeAdminLTECrud extends AbstractMaker
         );
 
         $templates = [
+            '_modal' => [
+                'route_name' => $routeName,
+                'entity_twig_var_singular' => $entityTwigVarSingular,
+                'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
+            ],
             '_modal_delete' => [
                 'route_name' => $routeName,
                 'entity_twig_var_singular' => $entityTwigVarSingular,
                 'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
             ],
             '_form' => [],
-            'edit' => [
-                'entity_class_name' => $entityClassDetails->getShortName(),
-                'entity_twig_var_singular' => $entityTwigVarSingular,
-                'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
-                'route_name' => $routeName,
-                'base_layout' => $this->baseLayout,
-            ],
             'index' => [
                 'entity_class_name' => $entityClassDetails->getShortName(),
                 'entity_twig_var_plural' => $entityTwigVarPlural,
@@ -188,11 +187,6 @@ class MakeAdminLTECrud extends AbstractMaker
                 'base_layout' => $this->baseLayout,
                 'cdn_css' => $this->cdnCss,
                 'cdn_js' => $this->cdnJs,
-            ],
-            'new' => [
-                'entity_class_name' => $entityClassDetails->getShortName(),
-                'route_name' => $routeName,
-                'base_layout' => $this->baseLayout,
             ],
             'show' => [
                 'entity_class_name' => $entityClassDetails->getShortName(),
@@ -207,7 +201,7 @@ class MakeAdminLTECrud extends AbstractMaker
         foreach ($templates as $template => $variables) {
             $generator->generateTemplate(
                 $templatesPath.'/'.$template.'.html.twig',
-                $this->skeletonDir . 'crud/templates/'.$template.'.tpl.php',
+                $this->skeletonDir . 'crudmodal/templates/'.$template.'.tpl.php',
                 $variables
             );
         }

@@ -13,8 +13,8 @@
                 {% endblock %}
                 {% block box_footer %}
                     <div class="pull-right">
-                        <button type="submit" class="btn btn-primary" href="{{ path('<?= $route_name ?>_new') }}">{{ 'Submit'|trans }}</button>
-                        <a class="btn btn-warning" href="{{ path('<?= $route_name ?>_index') }}">{{ 'Back to list'|trans }}</a>
+                        <button type="submit" class="btn btn-primary" href="{{ path('<?= $route_name ?>_new') }}"><i class="fa fa-plus-square"></i> {{ 'Create new'|trans }}</button>
+                        <a class="btn btn-warning" href="{{ path('<?= $route_name ?>_index') }}"><i class="fa fa-arrow-alt-circle-left"></i> {{ 'Back to list'|trans }}</a>
                     </div>
                 {% endblock %}
                 {% block box_after %}{{ form_end(form) }}{% endblock %}

@@ -17,6 +17,16 @@ services:
         tags:
             - { name: maker.command }
 
+    app.maker.adminlte.make_crudmodal:
+        class: Pretorien\AdminLTEMakerBundle\Maker\MakeAdminLTECrudModal
+        arguments: ['@maker.doctrine_helper','@maker.renderer.form_type_renderer']
+        calls:
+            - [setConfiguration, ['%adminlte-maker%']]
+            - [configureCommand, ['@security.command.user_password_encoder', '@?']]
+            - [interact, ['@?', '@?', '@security.command.user_password_encoder']]
+        tags:
+            - { name: maker.command }
+
     app.maker.adminlte.make_controller:
         class:  Pretorien\AdminLTEMakerBundle\Maker\MakeAdminLTEController
         # arguments: ['@maker.doctrine_helper','@maker.renderer.form_type_renderer']
