@@ -4,6 +4,7 @@ namespace <?= $namespace ?>;
 
 use <?= $entity_full_class_name ?>;
 use <?= $form_full_class_name ?>;
+use <?= $table_full_class_name ?>;
 <?php if (isset($repository_full_class_name)): ?>
 use <?= $repository_full_class_name ?>;
 <?php endif ?>
@@ -30,48 +31,10 @@ class <?= $class_name ?> extends <?= $parent_class_name; ?><?= "\n" ?>
 <?php if (isset($repository_full_class_name)): ?>
     public function index(Request $request, DataTableFactory $dataTableFactory, TranslatorInterface $translator, EntityManagerInterface $em, <?= $repository_class_name ?> $<?= $repository_var ?>): Response
     {
-        $table = $dataTableFactory->create();
-<?php
-            foreach ($entity_fields as $field){
-                echo "\t\t";
-                switch ($field['type']) {
-                    case 'boolean':
-                        echo "\$table->add('" . $field['fieldName'] ."', BoolColumn::class, [
-                            'trueValue' => \$translator->trans('Yes'),
-                            'falseValue' => \$translator->trans('No'),
-                            'nullValue' => \$translator->trans('Unknown'),
-                        ]);" . PHP_EOL;
-                        break;
-
-                    case 'datetime':
-                        echo "\$table->add('" . $field['fieldName'] ."', DateTimeColumn::class, [
-                            'format' => 'd/m/Y H:i',
-                        ]);" . PHP_EOL;
-                        break;
-
-                    case 'integer':
-                    case 'text':
-                    case 'string':
-                    default:
-                        echo "\$table->add('" . $field['fieldName'] ."', TextColumn::class);" . PHP_EOL;
-                        break;
-                }
-            }
-        ?>
-
-        $table->add('link', TextColumn::class, [
-        'data' => function (<?= $entity_class_name ?> $<?= strtolower($entity_class_name); ?>) use ($translator) {
-            return sprintf('<a class="btn btn-primary btn-xs" href="%s"><i class="fa fa-search"></i>  '.$translator->trans('Show').'</a>', $this->generateUrl('<?= $route_name ?>_show', [
-                'id' => $<?= strtolower($entity_class_name); ?>->getId(),
-            ]) );
-        },
-        'raw' => true,
-    ]);
-
-        $table->createAdapter(ORMAdapter::class, [
-            'entity' => <?= $entity_class_name ?>::class,
+        $table = $dataTableFactory->createFromType(<?= $entity_class_name ?>TableType::class, [
+            'translator' => $translator
         ])->handleRequest($request);
-            
+
         if ($table->isCallback()) {
             return $table->getResponse();
         }
