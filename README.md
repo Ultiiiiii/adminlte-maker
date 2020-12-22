@@ -1,11 +1,11 @@
-# AdminLTEMaker bundle for Symfony 4 & 5
+# AdminLTEMaker bundle for Symfony 5
 
 This repository contains AdminLTEMaker bundle which helps you create controller skeletons and templates based on [AdminLTE bundle](https://github.com/kevinpapst/AdminLTEBundle) and [DataTables bundle](https://github.com/omines/datatables-bundle).
 
 ### Minimum requirements
 
-- Symfony 4.0
-- PHP 7.1.3
+- Symfony 5.0
+- PHP 7.2
 - Twig 2.0
 - [AdminLTE bundle](https://github.com/kevinpapst/AdminLTEBundle)
 - [DataTables bundle](https://github.com/omines/datatables-bundle)
