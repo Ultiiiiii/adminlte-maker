@@ -3,7 +3,7 @@
 namespace Pretorien\AdminLTEMakerBundle\Maker;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
-use Doctrine\Common\Inflector\Inflector;
+use Symfony\Component\String\Inflector\EnglishInflector;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\MakerBundle\ConsoleStyle;
 use Symfony\Bundle\MakerBundle\DependencyBuilder;
@@ -47,7 +47,7 @@ class MakeAdminLTECrud extends AbstractMaker
         $this->cdnCss = $configuration['datatable']['cdn_css'];
         $this->cdnJs = $configuration['datatable']['cdn_js'];
     }
-    
+
     public static function getCommandName(): string
     {
         return 'make:adminlte:crud';
@@ -84,6 +84,8 @@ class MakeAdminLTECrud extends AbstractMaker
 
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator)
     {
+        $inflector = new EnglishInflector();
+
         $entityClassDetails = $generator->createClassNameDetails(
             Validator::entityExists($input->getArgument('entity-class'), $this->doctrineHelper->getEntitiesForAutocomplete()),
             'Entity\\'
@@ -100,10 +102,11 @@ class MakeAdminLTECrud extends AbstractMaker
                 'Repository'
             );
 
+            $arr = $inflector->singularize($repositoryClassDetails->getShortName());
             $repositoryVars = [
                 'repository_full_class_name' => $repositoryClassDetails->getFullName(),
                 'repository_class_name' => $repositoryClassDetails->getShortName(),
-                'repository_var' => lcfirst(Inflector::singularize($repositoryClassDetails->getShortName())),
+                'repository_var' => lcfirst(reset($arr)),
             ];
         }
 
@@ -123,33 +126,34 @@ class MakeAdminLTECrud extends AbstractMaker
             ++$iter;
         } while (class_exists($formClassDetails->getFullName()));
 
-        $entityVarPlural = lcfirst(Inflector::pluralize($entityClassDetails->getShortName()));
-        $entityVarSingular = lcfirst(Inflector::singularize($entityClassDetails->getShortName()));
+        $arr = $inflector->pluralize($entityClassDetails->getShortName());
+        $entityVarPlural = lcfirst(reset($arr));
+        $entityVarSingular = lcfirst($entityClassDetails->getShortName());
 
         $entityTwigVarPlural = Str::asTwigVariable($entityVarPlural);
         $entityTwigVarSingular = Str::asTwigVariable($entityVarSingular);
 
         $routeName = Str::asRouteName($controllerClassDetails->getRelativeNameWithoutSuffix());
         $templatesPath = Str::asFilePath($controllerClassDetails->getRelativeNameWithoutSuffix());
-        
+
         $generator->generateController(
             $controllerClassDetails->getFullName(),
             $this->skeletonDir . 'crud/controller/Controller.tpl.php',
             array_merge([
-                    'entity_full_class_name' => $entityClassDetails->getFullName(),
-                    'entity_class_name' => $entityClassDetails->getShortName(),
-                    'form_full_class_name' => $formClassDetails->getFullName(),
-                    'form_class_name' => $formClassDetails->getShortName(),
-                    'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
-                    'route_name' => $routeName,
-                    'templates_path' => $templatesPath,
-                    'entity_var_plural' => $entityVarPlural,
-                    'entity_twig_var_plural' => $entityTwigVarPlural,
-                    'entity_var_singular' => $entityVarSingular,
-                    'entity_twig_var_singular' => $entityTwigVarSingular,
-                    'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
-                    'entity_fields' => $entityDoctrineDetails->getDisplayFields(),
-                ],
+                'entity_full_class_name' => $entityClassDetails->getFullName(),
+                'entity_class_name' => $entityClassDetails->getShortName(),
+                'form_full_class_name' => $formClassDetails->getFullName(),
+                'form_class_name' => $formClassDetails->getShortName(),
+                'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
+                'route_name' => $routeName,
+                'templates_path' => $templatesPath,
+                'entity_var_plural' => $entityVarPlural,
+                'entity_twig_var_plural' => $entityTwigVarPlural,
+                'entity_var_singular' => $entityVarSingular,
+                'entity_twig_var_singular' => $entityTwigVarSingular,
+                'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
+                'entity_fields' => $entityDoctrineDetails->getDisplayFields(),
+            ],
                 $repositoryVars
             )
         );
