@@ -11,9 +11,8 @@
                 {% endblock %}
                 {% block box_footer %}
                     <div class="pull-right">
-                        <button type="submit" class="btn btn-success">{{ button_label|default('Save') }}</button>
-                        <a class="btn btn-primary " href="{{ path('<?= $route_name ?>_index') }}">{{ 'Back to list'|trans }}</a>
-                        {{ include('<?= strtolower($entity_class_name) ?>/_delete_form.html.twig') }}
+                        <button type="submit" class="btn btn-primary"><i class='fas fa-save'></i> {{ button_label|default('Save'|trans) }}</button>
+                        <a class="btn btn-warning " href="{{ path('<?= $route_name ?>_index') }}"><i class='fas fa-arrow-alt-circle-left'></i> {{ 'Back to list'|trans }}</a>
                     </div>
                 {% endblock %}
                 {% block box_after %}{{ form_end(form) }}{% endblock %}

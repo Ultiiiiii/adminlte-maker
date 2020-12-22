@@ -1,6 +1,11 @@
 {% extends '<?= $base_layout ?>' %}
 
 {% block page_content %}
+    <!-- start of modal -->
+    {% if modal is defined and modal is not empty %}
+        {{ include('<?= $route_name ?>/_modal.html.twig', { modal: modal } ) }}
+    {% endif %}
+    <!-- end of modal -->
     <div class="row">
         <div class="col-md-12">
             {% embed '@AdminLTE/Widgets/box-widget.html.twig' %}
@@ -8,7 +13,7 @@
                 {% block box_title %}{{ '<?= $entity_class_name ?> index'|trans }}{% endblock %}
                 {% block box_tools %}
                 <div class="pull-right">
-                    <a class="btn btn-primary " href="{{ path('<?= $route_name ?>_new') }}"><i class="fa fa-plus-square"></i> {{ 'Create new'|trans }}</a>
+                    <button class="btn btn-primary " data-toggle="modal" data-target="#modalEditNew"><i class="fa fa-plus-square"></i> {{ 'Create new'|trans }}</button>
                 </div>
                 {% endblock %}
                 {% block box_body %}
